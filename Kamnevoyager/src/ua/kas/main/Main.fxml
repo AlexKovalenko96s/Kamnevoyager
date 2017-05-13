@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane minHeight="150.0" minWidth="500.0" prefHeight="99.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ua.kas.main.Controller">
+   <children>
+      <ComboBox fx:id="comB_city" layoutX="221.0" layoutY="14.0" onAction="#resetLocation" prefHeight="25.0" prefWidth="120.0" promptText="City" />
+      <ComboBox fx:id="comB_location" layoutX="359.0" layoutY="14.0" onMouseClicked="#selectLocation" prefHeight="25.0" prefWidth="120.0" promptText="Location" />
+      <Button layoutX="319.0" layoutY="50.0" mnemonicParsing="false" onAction="#addLocation" prefHeight="44.0" prefWidth="160.0" text="Add location" />
+      <Button layoutX="221.0" layoutY="50.0" mnemonicParsing="false" onAction="#deleteLocation" prefHeight="44.0" prefWidth="80.0" text="Delete" />
+      <ListView fx:id="lv_location" prefHeight="150.0" prefWidth="200.0" />
+   </children>
+</AnchorPane>
