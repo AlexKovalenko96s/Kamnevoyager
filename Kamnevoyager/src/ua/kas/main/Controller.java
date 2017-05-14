@@ -7,7 +7,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.LinkedList;
 import java.util.ResourceBundle;
+
+import javax.swing.JOptionPane;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,6 +19,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TextField;
 
 public class Controller implements Initializable {
 
@@ -24,14 +28,38 @@ public class Controller implements Initializable {
 	@FXML
 	ComboBox<String> comB_location;
 	@FXML
+	ComboBox<String> comB_dimensions;
+	@FXML
+	ComboBox<String> comB_importance;
+
+	@FXML
 	ListView<String> lv_location;
 
-	ObservableList<String> list_selectLocation = FXCollections.observableArrayList();
-	ObservableList<String> list_city = FXCollections.observableArrayList();
-	ObservableList<String> list_location = FXCollections.observableArrayList();
+	@FXML
+	TextField tf_weight;
+
+	private LinkedList<Location> list_locations = new LinkedList<>();
+
+	private ObservableList<String> list_selectLocation = FXCollections.observableArrayList();
+	private ObservableList<String> list_city = FXCollections.observableArrayList();
+	private ObservableList<String> list_location = FXCollections.observableArrayList();
+	private ObservableList<String> list_dimensions = FXCollections.observableArrayList("Small-sized", "Mid-size",
+			"Large-size");
+	private ObservableList<String> list_importance = FXCollections.observableArrayList("First degree", "Second degree",
+			"Third degree");
+
+	private TabuSearch tabuSerch = new TabuSearch();
+
+	private boolean first = true;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
+		if (first) {
+			tf_weight.setDisable(true);
+			comB_dimensions.setDisable(true);
+			comB_importance.setDisable(true);
+		}
+
 		lv_location.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		try {
 			Class.forName("org.sqlite.JDBC");
@@ -43,6 +71,8 @@ public class Controller implements Initializable {
 				list_city.add(res.getString("city"));
 			}
 			comB_city.setItems(list_city);
+			comB_dimensions.setItems(list_dimensions);
+			comB_importance.setItems(list_importance);
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
 		}
@@ -81,11 +111,73 @@ public class Controller implements Initializable {
 		}
 	}
 
-	public void addLocation() {
+	public void addLocation() throws ClassNotFoundException, SQLException {
+		double weight = 0, x = 0, y = 0;
+
 		if (!comB_city.getSelectionModel().isEmpty() && !comB_location.getSelectionModel().isEmpty()) {
-			list_selectLocation.add(comB_city.getSelectionModel().getSelectedItem() + " - "
-					+ comB_location.getSelectionModel().getSelectedItem());
-			lv_location.setItems(list_selectLocation);
+			Class.forName("org.sqlite.JDBC");
+			Connection connect = DriverManager.getConnection("jdbc:sqlite:res\\kamnevoyager.db");
+			String query = "SELECT x, y FROM location WHERE city = ? and location = ?";
+			PreparedStatement statement = connect.prepareStatement(query);
+			statement.setString(1, comB_city.getSelectionModel().getSelectedItem());
+			statement.setString(2, comB_location.getSelectionModel().getSelectedItem());
+			ResultSet res = statement.executeQuery();
+			while (res.next()) {
+				x = Double.parseDouble(res.getString("x"));
+				y = Double.parseDouble(res.getString("y"));
+			}
+
+			if (first) {
+				list_locations.add(new SetLocation(comB_city.getSelectionModel().getSelectedItem(),
+						comB_location.getSelectionModel().getSelectedItem(), "null", "null", 0, x, y));
+
+				list_selectLocation.add(comB_city.getSelectionModel().getSelectedItem() + " - "
+						+ comB_location.getSelectionModel().getSelectedItem());
+
+				tf_weight.setDisable(false);
+				comB_dimensions.setDisable(false);
+				comB_importance.setDisable(false);
+
+				comB_location.getSelectionModel().clearSelection();
+				comB_city.getSelectionModel().clearSelection();
+
+				lv_location.setItems(list_selectLocation);
+
+				first = false;
+			} else if (!comB_dimensions.getSelectionModel().isEmpty() && !comB_importance.getSelectionModel().isEmpty()
+					&& tf_weight.getText() != null) {
+				try {
+					weight = Double.parseDouble(tf_weight.getText());
+				} catch (Exception e) {
+				}
+
+				if (weight > 0) {
+					list_locations.add(new SetLocation(comB_city.getSelectionModel().getSelectedItem(),
+							comB_location.getSelectionModel().getSelectedItem(),
+							comB_dimensions.getSelectionModel().getSelectedItem(),
+							comB_importance.getSelectionModel().getSelectedItem(), weight, x, y));
+
+					list_selectLocation.add(comB_city.getSelectionModel().getSelectedItem() + " - "
+							+ comB_location.getSelectionModel().getSelectedItem());
+
+					comB_location.getSelectionModel().clearSelection();
+					comB_city.getSelectionModel().clearSelection();
+					comB_dimensions.getSelectionModel().clearSelection();
+					comB_importance.getSelectionModel().clearSelection();
+					tf_weight.setText(null);
+					lv_location.setItems(list_selectLocation);
+				} else
+					JOptionPane.showMessageDialog(null, "Please, enter correct weight!");
+			} else
+				JOptionPane.showMessageDialog(null, "Please, fill in all fields!");
+		}
+	}
+
+	public void works() {
+		if (list_locations.size() > 1) {
+			tabuSerch.start(list_locations);
+		} else {
+			JOptionPane.showMessageDialog(null, "Please, enter more then one location!");
 		}
 	}
 }

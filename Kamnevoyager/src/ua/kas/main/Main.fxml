@@ -3,14 +3,19 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane minHeight="150.0" minWidth="500.0" prefHeight="99.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ua.kas.main.Controller">
+<AnchorPane prefHeight="170.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ua.kas.main.Controller">
    <children>
-      <ComboBox fx:id="comB_city" layoutX="221.0" layoutY="14.0" onAction="#resetLocation" prefHeight="25.0" prefWidth="120.0" promptText="City" />
-      <ComboBox fx:id="comB_location" layoutX="359.0" layoutY="14.0" onMouseClicked="#selectLocation" prefHeight="25.0" prefWidth="120.0" promptText="Location" />
-      <Button layoutX="319.0" layoutY="50.0" mnemonicParsing="false" onAction="#addLocation" prefHeight="44.0" prefWidth="160.0" text="Add location" />
-      <Button layoutX="221.0" layoutY="50.0" mnemonicParsing="false" onAction="#deleteLocation" prefHeight="44.0" prefWidth="80.0" text="Delete" />
-      <ListView fx:id="lv_location" prefHeight="150.0" prefWidth="200.0" />
+      <ComboBox fx:id="comB_city" layoutX="250.0" layoutY="14.0" onAction="#resetLocation" prefHeight="25.0" prefWidth="160.0" promptText="City" />
+      <ComboBox fx:id="comB_location" layoutX="426.0" layoutY="14.0" onMouseClicked="#selectLocation" prefHeight="25.0" prefWidth="160.0" promptText="Location" />
+      <Button layoutX="345.0" layoutY="85.0" mnemonicParsing="false" onAction="#addLocation" prefHeight="32.0" prefWidth="241.0" text="Add location" />
+      <Button disable="true" layoutX="250.0" layoutY="85.0" mnemonicParsing="false" onAction="#deleteLocation" prefHeight="32.0" prefWidth="85.0" text="Delete" />
+      <ListView fx:id="lv_location" prefHeight="170.0" prefWidth="222.0" />
+      <ComboBox fx:id="comB_importance" disable="true" layoutX="471.0" layoutY="47.0" prefHeight="25.0" prefWidth="115.0" promptText="importance" />
+      <TextField fx:id="tf_weight" disable="true" layoutX="250.0" layoutY="47.0" prefHeight="25.0" prefWidth="85.0" promptText="weight (kg.)" />
+      <ComboBox fx:id="comB_dimensions" disable="true" layoutX="345.0" layoutY="47.0" prefHeight="25.0" prefWidth="115.0" promptText="dimensions" />
+      <Button layoutX="250.0" layoutY="128.0" mnemonicParsing="false" onAction="#works" prefHeight="32.0" prefWidth="336.0" text="Works" />
    </children>
 </AnchorPane>
