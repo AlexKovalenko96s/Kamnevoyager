@@ -16,6 +16,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
@@ -34,6 +35,9 @@ public class Controller implements Initializable {
 
 	@FXML
 	ListView<String> lv_location;
+
+	@FXML
+	CheckBox cb_test;
 
 	@FXML
 	TextField tf_weight;
@@ -63,7 +67,7 @@ public class Controller implements Initializable {
 		lv_location.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		try {
 			Class.forName("org.sqlite.JDBC");
-			Connection connect = DriverManager.getConnection("jdbc:sqlite:res\\kamnevoyager.db");
+			Connection connect = DriverManager.getConnection("jdbc:sqlite::resource:ua/kas/main/kamnevoyager.db");
 			Statement statement = connect.createStatement();
 			String query = "SELECT city FROM location GROUP BY city ORDER BY city";
 			ResultSet res = statement.executeQuery(query);
@@ -82,7 +86,7 @@ public class Controller implements Initializable {
 		list_location.clear();
 		try {
 			Class.forName("org.sqlite.JDBC");
-			Connection connect = DriverManager.getConnection("jdbc:sqlite:res\\kamnevoyager.db");
+			Connection connect = DriverManager.getConnection("jdbc:sqlite::resource:ua/kas/main/kamnevoyager.db");
 			String query = "SELECT location FROM location WHERE city = ? GROUP BY location ORDER BY location";
 			PreparedStatement statement = connect.prepareStatement(query);
 			statement.setString(1, comB_city.getSelectionModel().getSelectedItem());
@@ -116,7 +120,7 @@ public class Controller implements Initializable {
 
 		if (!comB_city.getSelectionModel().isEmpty() && !comB_location.getSelectionModel().isEmpty()) {
 			Class.forName("org.sqlite.JDBC");
-			Connection connect = DriverManager.getConnection("jdbc:sqlite:res\\kamnevoyager.db");
+			Connection connect = DriverManager.getConnection("jdbc:sqlite::resource:ua/kas/main/kamnevoyager.db");
 			String query = "SELECT x, y FROM location WHERE city = ? and location = ?";
 			PreparedStatement statement = connect.prepareStatement(query);
 			statement.setString(1, comB_city.getSelectionModel().getSelectedItem());
@@ -175,7 +179,7 @@ public class Controller implements Initializable {
 
 	public void works() {
 		if (list_locations.size() > 1) {
-			tabuSerch.start(list_locations);
+			tabuSerch.start(list_locations, cb_test.isSelected());
 		} else {
 			JOptionPane.showMessageDialog(null, "Please, enter more then one location!");
 		}
