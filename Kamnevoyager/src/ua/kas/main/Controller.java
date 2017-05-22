@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.ResourceBundle;
 
@@ -14,6 +15,7 @@ import javax.swing.JOptionPane;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.CheckBox;
@@ -177,9 +179,17 @@ public class Controller implements Initializable {
 		}
 	}
 
-	public void works() {
+	public void works(ActionEvent event) {
 		if (list_locations.size() > 1) {
-			tabuSerch.start(list_locations, cb_test.isSelected());
+			Thread thread = new Thread(new Runnable() {
+
+				@Override
+				public void run() {
+					tabuSerch.start(list_locations, cb_test.isSelected(), event,
+							new ArrayList<String>(list_selectLocation));
+				}
+			});
+			thread.start();
 		} else {
 			JOptionPane.showMessageDialog(null, "Please, enter more then one location!");
 		}

@@ -14,15 +14,29 @@ public class TabuSearch {
 	private BufferedReader reader;
 
 	private ArrayList<Double> list_lenght = new ArrayList<>();
+
 	private ArrayList<Integer> list_time = new ArrayList<>();
 	private ArrayList<String> list_lenght_String = new ArrayList<>();
+
 	private ArrayList<String> list_time_String = new ArrayList<>();
+
+	@SuppressWarnings("unused")
+	private ArrayList<String> list_location = new ArrayList<>();
 
 	private int[][] mass_time;
 
+	@SuppressWarnings("unused")
+	private javafx.event.ActionEvent event;
+
 	private String out = "";
 
-	public void start(LinkedList<Location> list_locations, boolean test) {
+	@SuppressWarnings("unused")
+	private OpenModalWindow openModalWindow;
+
+	public void start(LinkedList<Location> list_locations, boolean test, javafx.event.ActionEvent event,
+			ArrayList<String> list_location) {
+		this.list_location = list_location;
+		this.event = event;
 		list_lenght_String.clear();
 		list_time_String.clear();
 		list_lenght.clear();
@@ -212,6 +226,12 @@ public class TabuSearch {
 			} else if (allTime > 20) {
 				out += "Three or more shift." + "\n";
 			}
+
+			openModalWindow = new OpenModalWindow(event);
+			WayController.setMass_Time(mass_time);
+			WayController.setMass_Way(tspEnvironment.distances);
+			WayController.setBestSol(bestSol);
+			WayController.setList_location(list_location);
 
 			JOptionPane.showMessageDialog(null, out);
 		} catch (Exception e) {
