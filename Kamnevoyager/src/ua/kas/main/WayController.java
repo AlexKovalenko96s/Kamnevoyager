@@ -1,9 +1,7 @@
 package ua.kas.main;
 
-import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.ResourceBundle;
 
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -12,13 +10,12 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.util.Duration;
 
-public class WayController implements Initializable {
+public class WayController {
 
 	@FXML
 	Label lb_name;
@@ -41,13 +38,13 @@ public class WayController implements Initializable {
 
 	private ObservableList<String> list_running = FXCollections.observableArrayList();
 
-	private static ArrayList<String> list_location = new ArrayList<>();
+	private ArrayList<String> list_location = new ArrayList<>();
 
-	private static int[][] mass_Time;
+	private int[][] mass_Time;
 
-	private static double[][] mass_Way;
+	private double[][] mass_Way;
 
-	private static int[] bestSol;
+	private int[] bestSol;
 
 	private double allTime = 0;
 	private double allLenght = 0;
@@ -61,8 +58,21 @@ public class WayController implements Initializable {
 
 	private boolean works = false;
 
-	@Override
-	public void initialize(URL location, ResourceBundle resources) {
+	private int driver = 0;
+	private int car = 0;
+
+	public static Way way;
+
+	public void initialize() {
+		Way tempWay = way;
+
+		list_location = tempWay.getList_location();
+		mass_Time = tempWay.getMass_Time();
+		mass_Way = tempWay.getMass_Way();
+		bestSol = tempWay.getBestSol();
+		driver = tempWay.getDriver();
+		car = tempWay.getCar();
+
 		btn_start.setDisable(false);
 		btn_repaired.setDisable(true);
 		btn_broke.setDisable(true);
@@ -109,6 +119,14 @@ public class WayController implements Initializable {
 
 		if (lenght <= 0 && count + 1 == bestSol.length) {
 			list_running.add(0, "FINISH!!!");
+			ArrayList<Boolean> list_works = DriverController.getList_works();
+			ArrayList<Boolean> list_worksCars = CarController.getList_works();
+
+			list_works.set(driver, false);
+			DriverController.setList_works(list_works);
+			list_worksCars.set(car, false);
+			DriverController.setList_works(list_worksCars);
+
 			btn_broke.setDisable(true);
 			timeLine.stop();
 			works = false;
@@ -161,19 +179,7 @@ public class WayController implements Initializable {
 		});
 	}
 
-	public static void setMass_Time(int[][] mass_Time) {
-		WayController.mass_Time = mass_Time;
-	}
-
-	public static void setMass_Way(double[][] mass_Way) {
-		WayController.mass_Way = mass_Way;
-	}
-
-	public static void setBestSol(int[] bestSol) {
-		WayController.bestSol = bestSol;
-	}
-
-	public static void setList_location(ArrayList<String> list_location) {
-		WayController.list_location = list_location;
+	public static void setWay(Way way) {
+		WayController.way = way;
 	}
 }

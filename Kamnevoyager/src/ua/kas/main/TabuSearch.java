@@ -33,6 +33,10 @@ public class TabuSearch {
 	@SuppressWarnings("unused")
 	private OpenModalWindow openModalWindow;
 
+	private DriverController driverController = new DriverController();
+	private CarController carController = new CarController();
+
+	@SuppressWarnings("static-access")
 	public void start(LinkedList<Location> list_locations, boolean test, javafx.event.ActionEvent event,
 			ArrayList<String> list_location) {
 		this.list_location = list_location;
@@ -204,7 +208,7 @@ public class TabuSearch {
 					dimensions += 10;
 			}
 
-			if ((dimensions <= 5) || (weight <= 300))
+			if ((dimensions <= 5) && (weight <= 300))
 				outWeightAndDimension = "Car type - sedan.";
 			else if ((dimensions > 5 && dimensions <= 12) || (weight > 300 && weight <= 500))
 				outWeightAndDimension = "Car type - minivan.";
@@ -214,8 +218,51 @@ public class TabuSearch {
 				outWeightAndDimension = "Car type - van.";
 			else if ((dimensions > 55 && dimensions <= 105) || (weight > 3000 && weight <= 6000))
 				outWeightAndDimension = "Car type - truck.";
-			else
-				outWeightAndDimension = "Please, select another settings!";
+			else {
+				JOptionPane.showMessageDialog(null, "Please, select another settings!");
+				return;
+			}
+
+			int driver = 0;
+
+			if (outWeightAndDimension.contains("sedan") || outWeightAndDimension.contains("minivan")
+					|| outWeightAndDimension.contains("small van")) {
+				driver = selectDriver("B");
+			} else {
+				driver = selectDriver("C");
+			}
+
+			if (driver == -69) {
+				JOptionPane.showMessageDialog(null, "At the moment there are no free drivers!");
+				return;
+			}
+
+			int car = 0;
+
+			if (outWeightAndDimension.contains("sedan")) {
+				car = selectCar("sedan");
+			} else if (outWeightAndDimension.contains("minivan")) {
+				car = selectCar("minivan");
+			} else if (outWeightAndDimension.contains("small van")) {
+				car = selectCar("smallVan");
+			} else if (outWeightAndDimension.contains("- van")) {
+				car = selectCar("van");
+			} else if (outWeightAndDimension.contains("truck")) {
+				car = selectCar("truck");
+			}
+
+			if (car == -69) {
+				JOptionPane.showMessageDialog(null, "At the moment there are no free cars!");
+				return;
+			}
+
+			ArrayList<Boolean> list_worksDriver = DriverController.getList_works();
+			list_worksDriver.set(driver, true);
+			DriverController.setList_works(list_worksDriver);
+
+			ArrayList<Boolean> list_worksCar = CarController.getList_works();
+			list_worksCar.set(car, true);
+			CarController.setList_works(list_worksCar);
 
 			out += outWeightAndDimension + "\n";
 
@@ -227,12 +274,18 @@ public class TabuSearch {
 				out += "Three or more shift." + "\n";
 			}
 
-			openModalWindow = new OpenModalWindow(event);
-			WayController.setMass_Time(mass_time);
-			WayController.setMass_Way(tspEnvironment.distances);
-			WayController.setBestSol(bestSol);
-			WayController.setList_location(list_location);
+			out += "Driver: (id)" + driverController.getList_drivers().get(driver).getId() + " "
+					+ driverController.getList_drivers().get(driver).getName() + " "
+					+ driverController.getList_drivers().get(driver).getSurname() + "\n";
 
+			out += "Car: (id)" + carController.getList_cars().get(car).getId() + " "
+					+ carController.getList_cars().get(car).getMark() + " "
+					+ carController.getList_cars().get(car).getModel() + "\n";
+
+			openModalWindow = new OpenModalWindow(event);
+
+			Way way = new Way(list_location, mass_time, tspEnvironment.distances, bestSol, driver, car);
+			WayController.setWay(way);
 			JOptionPane.showMessageDialog(null, out);
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "No internet connection!");
@@ -295,5 +348,78 @@ public class TabuSearch {
 			out += solution[i] + " ";
 		}
 		out += "\n";
+	}
+
+	@SuppressWarnings("static-access")
+	private int selectDriver(String category) {
+		ArrayList<Drivers> list_drivers = driverController.getList_drivers();
+		ArrayList<Boolean> list_works = DriverController.getList_works();
+
+		for (int i = 0; i < list_drivers.size(); i++) {
+			if (category.equals("B")) {
+
+				if (list_drivers.get(i).getCategoryB().equals("yes")
+						&& list_drivers.get(i).getCategoryC().equals("no")) {
+					if (!list_works.get(i)) {
+						return i;
+					}
+				}
+			} else {
+				if (list_drivers.get(i).getCategoryC().equals("yes")
+						&& list_drivers.get(i).getCategoryB().equals("no")) {
+					if (!list_works.get(i)) {
+						return i;
+					}
+				}
+			}
+		}
+
+		for (int i = 0; i < list_drivers.size(); i++) {
+			if (category.equals("B")) {
+				if (list_drivers.get(i).getCategoryB().equals("yes")
+						&& list_drivers.get(i).getCategoryC().equals("yes")) {
+					if (!list_works.get(i)) {
+						return i;
+					}
+				}
+			} else {
+				if (list_drivers.get(i).getCategoryC().equals("yes")
+						&& list_drivers.get(i).getCategoryB().equals("yes")) {
+					if (!list_works.get(i)) {
+						return i;
+					}
+				}
+			}
+		}
+		return -69;
+	}
+
+	@SuppressWarnings("static-access")
+	private int selectCar(String type) {
+		ArrayList<Cars> list_cars = carController.getList_cars();
+		ArrayList<Boolean> list_works = CarController.getList_works();
+
+		for (int i = 0; i < list_cars.size(); i++) {
+			if (list_cars.get(i).getType().equals(type)) {
+				if (!list_works.get(i)) {
+					return i;
+				}
+			}
+		}
+
+		if (!type.equals("truck")) {
+			if (type.equals("sedan")) {
+				type = "minivan";
+			} else if (type.equals("minivan")) {
+				type = "smallVan";
+			} else if (type.equals("smallVan")) {
+				type = "van";
+			} else if (type.equals("van")) {
+				type = "truck";
+			}
+			return selectCar(type);
+		}
+
+		return -69;
 	}
 }
